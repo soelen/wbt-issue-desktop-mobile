@@ -1,0 +1,24 @@
+{
+  "name": "wbt-issue-desktop-mobile",
+  "version": "1.0.0",
+  "description": "A small repository to demonstrate different results when printing a simple bitmap with a bluetooth thermal printer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "wds --app-index index.html --http2 --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soelen/wbt-issue-desktop-mobile.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soelen/wbt-issue-desktop-mobile/issues"
+  },
+  "homepage": "https://github.com/soelen/wbt-issue-desktop-mobile#readme",
+  "dependencies": {
+    "@web/dev-server": "^0.1.8"
+  }
+}

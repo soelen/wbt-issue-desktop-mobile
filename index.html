@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BT Thermal Print bitmap print test</title>
+</head>
+<body>
+    <button id="connect">Connect</button>
+    <button id="print" disabled>Print</button> 
+    <script>
+        let characteristic = null;
+        const M58LL_SERVICE = 0x18f0;
+        const groups = [
+                // Start escpos ESC * to print bitmap, chunk it to buffer
+                [27, 100, 0, 29, 118, 48, 0, 4, 0, 32, 0, 255, 227, 199, 255, 255, 227, 199, 255, 192, 109, 198, 3, 223, 111, 198, 251, 223, 111, 198, 251, 223],
+                [110, 118, 251, 223, 110, 70, 251, 223, 110, 70, 251, 192, 110, 54, 3, 255, 237, 183, 255, 255, 237, 183, 255, 0, 1, 176, 0, 24, 253, 201, 252, 24],
+                [253, 201, 252, 7, 140, 54, 27, 248, 252, 112, 27, 248, 252, 112, 27, 28, 2, 48, 199, 231, 109, 176, 56, 231, 109, 176, 56, 0, 12, 55, 59, 255],
+                [236, 113, 227, 255, 236, 113, 227, 192, 110, 49, 59, 223, 97, 199, 255, 223, 97, 199, 255, 223, 96, 126, 0, 223, 109, 206, 31, 223, 109, 206, 31, 192],
+                [96, 54, 192, 255, 225, 136, 27, 255, 225, 136, 27],
+                // Next line
+                [27, 100, 2],
+            ]
+
+        const connect = document.getElementById( 'connect' );
+        const print = document.getElementById( 'print' );
+
+        const recursivefunction = ( groups = [], index = 0 ) => {
+            if( !characteristic ) return;
+            console.log( 'printing...', characteristic );
+
+            characteristic.writeValue( new Uint8Array( groups[ index ] ).buffer ).then( () => {
+                if( groups[ index + 1 ] ) recursivefunction( groups, index + 1 );
+            });
+        }
+
+        connect.addEventListener('click', () => {
+        navigator.bluetooth.requestDevice( {
+            acceptAllDevices: true,
+            optionalServices: [ M58LL_SERVICE ],
+        })
+        .then( device=> device.gatt.connect() )
+        .then( server => server.getPrimaryService( M58LL_SERVICE ) )
+        .then( service => service.getCharacteristics() )
+        .then( characteristics => {
+            characteristic = characteristics.find( characteristic => characteristic.properties.write );
+            console.log( characteristic );
+            print.removeAttribute( 'disabled' );
+        })
+        .catch( error => {
+            console.log( error );
+
+        } )
+        
+        })
+
+        print.addEventListener('click', () => {
+            recursivefunction( groups );
+        })
+
+    </script>
+</body>
+</html>
